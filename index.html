@@ -1,0 +1,232 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Simulador - Colheita</title>
+        <style>
+		/*--------------------- RESET ---------------------*/
+		*{font:normal 10pt consolas;margin:0;padding:0;}
+		html,body{background-color:#aaf;height:100%;width:100%;overflow-y:hidden;}
+		p{margin:5px;padding:5px;}
+		table{border-collapse: collapse;background-color:#fff}
+		table, td, th{
+			padding:6px;
+			border: 1px solid black;
+		}
+
+		#img_harvester{width:160px;text-align:left;}
+		#img_movable_tank{width:150px;text-align:left;}
+		#img_volks{position:relative;width:165px;text-align:left;}
+		#img_mercedes{position:relative;width:150px;text-align:left;}
+		.botao{
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+        </style>
+	<script type="text/javascript">
+		window.onload = function(event){
+			// carrega arquivos javascript
+			var scripts = [
+				'Constant.js',
+				'Clock.js',
+				'Machine.js',
+				'Glebe.js',
+				'glebes.js',
+				'Simulator.js',
+				'Interface.js'
+			];
+			include(scripts[0], function () {
+			include(scripts[1], function () {
+			include(scripts[2], function () {
+			include(scripts[3], function () {
+			include(scripts[4], function () {
+			include(scripts[5], function () {
+			include(scripts[6], function () {
+				// depois de carregar tudo, inicia o simulador..
+				Simulator.start();
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+		}
+		function include(filename, callback) {
+			var fileref = document.createElement('script');
+			fileref.setAttribute("type", "text/javascript");
+			fileref.setAttribute("src", "js/"+filename);
+			if (fileref.readyState) {
+				fileref.onreadystatechange = function () {
+					// IE
+					if (fileref.readyState == "loaded" || fileref.readyState == "complete") {
+						fileref.onreadystatechange = null;
+						callback();
+					}
+				}
+			} else {
+				// Other browsers
+				fileref.onload = function(){callback();}
+			}
+			if (typeof fileref != "undefined"){
+				//alert("pobrema ao carregar arquivo js ("+filename+")");
+				(document.getElementsByTagName("head")[0] || document.documentElement).appendChild(fileref)
+			}
+		}
+		var isInt = function(n){ return parseInt(n) === n };
+	</script>
+</head>
+<body oncontextmenu="return false;" onselectstart="return false;">
+	<table width=1000>
+	<tr><td rowspan="2" valign=top>
+
+	<table width=100%>
+	<tr><td width=80>Gleba: </td>
+	<td>
+	<select id="glebe" onchange="Simulator.start();">
+		<option value="sede">Sede</option>
+		<option value="fontana">Fontana</option>
+		<option value="giba">Giba</option>	
+		<option value="caixa_dagua">Caixa D'água</option>
+		<option value="fazendinha">Fazendinha</option>
+		<option value="parque">Parque</option>
+		<option value="tondelo">Tondelo</option>
+		<option value="campo">Campo</option>
+		<option value="coleginho">Coleginho</option>
+		<option value="acude">Açude</option>
+	</select>
+	</td></tr>
+
+	<tr><td>Produção: </td>
+	<td><select id="production_in_ha" onchange="Simulator.start();">
+		<optgroup label="Soja">
+			<option value="2400">40sc/ha</option>
+			<option value="3000">50sc/ha</option>
+			<option value="3300">55sc/ha</option>
+			<option value="3600" selected>60sc/ha</option>
+			<option value="3900">65sc/ha</option>
+			<option value="4100">70sc/ha</option>
+		</optgroup>
+		<optgroup label="Milho">
+			<option value="5700">95sc/ha</option>
+			<option value="7800">130sc/ha</option>
+			<option value="8400">140sc/ha</option>
+			<option value="9000">150sc/ha</option>
+			<option value="9600">160sc/ha</option>
+			<option value="10200">170sc/ha</option>
+			<option value="10800">180sc/ha</option>
+			<option value="11400">190sc/ha</option>
+			<option value="12000">200sc/ha</option>
+		</optgroup>
+	</select>
+	</td></tr>
+
+	<tr><td>Horário:</td>
+	<td><select id="clock_start" onchange="Simulator.start();">
+			<option value="540">09:00h</option>
+			<option value="570">09:30h</option>
+			<option value="600" selected>10:00h</option>
+			<option value="630">10:30h</option>
+			<option value="660">11:00h</option>
+			<option value="690">11:30h</option>
+			<option value="720">12:00h</option>
+			<option value="750">12:30h</option>
+			<option value="780">13:00h</option>
+			<option value="810">13:30h</option>
+			<option value="840">14:00h</option>
+			<option value="870">14:30h</option>
+			<option value="900">15:00h</option>
+		</select> início
+	<br>
+		<select id="clock_end" onchange="Simulator.start();">
+			<option value="1200">20:00h</option>
+			<option value="1230">20:30h</option>
+			<option value="1260" selected>21:00h</option>
+			<option value="1290">21:30h</option>
+			<option value="1320">22:00h</option>
+	</select> fim
+	</td></tr>
+
+	<script>
+
+	</script>
+	<tr><td valign=top>Caminhões:</td>
+	<td>
+		<p><input onclick="Simulator.start();" type="checkbox" id="active_truck_volks" checked="checked"/>&nbsp;Volks&nbsp;24-250</p>
+		<p><input onclick="Simulator.start();" type="checkbox" id="active_truck_mercedes" checked="checked"/>&nbsp;Mercedes&nbsp;1718</p>
+		<p id="first_truck_to_go_visibility">
+			Primeiro a sair
+			<select id="first_truck_to_go" onchange="Simulator.start();">
+				<option value="volks">Volks</option>
+				<option value="mercedes">Mercedes</option>
+			</select>
+		</p>
+
+	</td></tr>
+	<tr><td colspan="2" align=center>
+			<table align=center>
+					<tr>
+						<td class="botao" id="clock_current_time" width=30 align=center></td>
+						<td class="botao" id="clock_pause_resume" style="width:30px;cursor:pointer;text-align:center;" onclick="Simulator.pause();"  width=40>&nbsp;&#9613;&#9613;</td><!--&#9654;-->
+						<td class="botao" style="cursor:pointer" width=100>
+							<span id="clock_speed_01" onclick="Simulator.speed_set(1);">&#9899;</span>
+							<span id="clock_speed_02" onclick="Simulator.speed_set(2);">&#9898;</span>
+							<span id="clock_speed_03" onclick="Simulator.speed_set(3);">&#9898;</span>
+							<span id="clock_speed_04" onclick="Simulator.speed_set(4);">&#9898;</span>
+						</td>
+					</tr>
+				</table>
+	</td></tr>
+	</table>
+	<td style="width:730px;">
+	<img id="glebe_image" src="img/mapa.png" style="width:720px;height:250px">
+	</td></tr>
+	<tr><td height=50 colspan=2>
+			<table width=100%>
+					<tr>
+						<td class="botao" align=center id=glebe_info></td>
+
+					</tr>
+				</table>
+	</td></tr>
+	</table>
+
+
+	<!--
+	Colheita:
+	Milho 210sc/ha carga 250sc: 46m (5.7sc/minuto)
+	Milho 210sc/ha: 15m 100sc
+	-->
+
+	<table width=1000 height=300 style="border:0;">
+	<tr>
+		<td style="border:0;width:130px;text-align:center;">
+			<div>
+				<img src="img/silo_armazem.png" width="125" height="110">
+				<div id="silo_armazem_entregue"><b>Entregue: </b> 0sc</div>
+			</div>
+		</td>
+		<td style="border:0;">
+			<table style="border:0;">
+			<tr style="height:105px;">
+				<td style="border:0;width:600px;text-align:left;"><div id="harvester_information" style="float:right;width:210px;"><b>Entregue: </b> 0sc</div></td>
+				<td style="border:0px;width:180px;" align=right><div id="img_harvester"><img id="img_harvester_img" src="img/harvester.png"></div></td>
+				<td style="border:0px;width:180px;"><div id="img_movable_tank"><img id="img_movable_tank_img" src="img/movable_tank.png" title=""></div></td>
+			</tr>
+			<tr style="height:105px;" id="drawing_table_volks">
+				<td colspan="2" id="volks_estrada" align=right style="border:0;"><div id="img_volks"><img src="img/volks_indo.png"></div></td>
+				<td id="volks_information" style="border:0px;"></td>
+			</tr>
+			<tr style="height:105px;" id="drawing_table_mercedes">
+				<td colspan="2" id="mercedes_estrada" align=right style="border:0;"><div id="img_mercedes"><img src="img/mercedes_indo.png"></div></td>
+				<td id="mercedes_information" style="border:0;"></td>
+			</tr>
+			</table>
+		</td>
+	</tr>
+	</table>
+
+	<div id="result"></div>
+</body>
+</html>
